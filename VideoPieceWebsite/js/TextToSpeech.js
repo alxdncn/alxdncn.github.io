@@ -4,8 +4,7 @@ var queryTerm = 'Nature';
 var getUrl = 'https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&indexpageids=&titles=' + queryTerm;
             
 var msg;
-var vol = 0.01;
-var volIncrement = 0.005;
+var baseVar = 0.0075;
 
 var jsonText;
 $.ajax({
@@ -35,43 +34,56 @@ var onAjaxComplete = function(response){
     var jsonParsed = jsonArray[2].pageids[0];
     
     jsonText = jsonArray[2].pages[jsonParsed].extract;
-    
-//    jsonText = "Hello";
-    
+        
     msg = new SpeechSynthesisUtterance(jsonText);
-    //msg.pitch = 1.8; // 0 to 2
-    msg.rate = 1.5; // 0.1 to 10
-    msg.volume = vol;
-    msg.onend = nextUtterance;
-    
-//    window.speechSynthesis.speak(msg);
+//    msg.pitch = 1.8; // 0 to 2
+    msg.rate = 1.2; // 0.1 to 10
+    msg.volume = baseVar;
+    msg.onend = nextUtterance;    
 };
 
-function nextUtterance(event){
-    console.log("Next utterance called");
-    
+function startMessageLoop(){
+    window.speechSynthesis.speak(msg);
+};
+
+function nextUtterance(event){    
     msg = new SpeechSynthesisUtterance(jsonText);
-    if(vol < 1){
-        vol += volIncrement;
-    }
-    msg.rate = 1.5;
-    msg.volume = gameStateVar + 0.1;
+    msg.rate = 1.2;
+    msg.volume = gameStateVar + baseVar;
     msg.onend = nextUtterance;
     window.speechSynthesis.speak(msg);
 };
 
-//var voices;
-//
-//window.speechSynthesis.onvoiceschanged = function() {
-//    voices = window.speechSynthesis.getVoices();
-//    for(var i = 0; i < voices.length; i++){
-//        console.log(voices[i]);
-//    }
-//
-//    msg.voice = voices[10];
-//    msg.volume = 1;
-//    window.speechSynthesis.speak(msg);
-//};
+var openWindows = [];
+var launchWindows = false;
+var windowIndex = 0;
+var launchedWindows = false;
+
+function launchImageWindow(imageURL){    
+    var width = 500 + Math.floor(Math.random() * 600);
+    var height = 300 + Math.floor(Math.random() * 600);
+
+    var posX = -window.innerWidth/4 + Math.random() * (window.innerWidth);
+    var posY = Math.random() * (window.innerHeight - height/2);
+
+    var newWin = window.open(imageURL,'windowName' + openWindows.length,'resizable=1,scrollbars=1,fullscreen=100,height=' + height.toString() + ',width=' + width.toString() + ',left=' + posX.toString() + ',top=' + posY.toString(), 'toolbar=0, menubar=0,status=1');
+
+    openWindows.push(newWin);
+}
+
+function closeWindow(){    
+    var oldWindow = openWindows.pop();
+    oldWindow.close();
+
+    return openWindows.length;
+}
+
+function closeAllWindows(){ 
+    for(let i = openWindows.length - 1; i >= 0; i--){
+        var oldWindow = openWindows.pop();
+        oldWindow.close();
+    }    
+}
 
 //var voices = window.speechSynthesis.getVoices();
 //msg.voice = voices[10]; // Note: some voices don't support altering params

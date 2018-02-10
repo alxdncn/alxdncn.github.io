@@ -14,8 +14,6 @@ function createVideoObject(xPos, zPos, yRot, width, height, material){
     trees.push(vidPlane);
 }
 
-var openWindows = [];
-
 var trees = [];
 
 var queryTerm = 'nature';
@@ -36,31 +34,6 @@ var urls = [
 
 var maxTreeAudio = 0.6;
 var minTreeAudio = 0.2;
-
-function launchImageWindow(imageURL){
-    var width = 300 + Math.floor(Math.random() * 600);
-    var height = 300 + Math.floor(Math.random() * 600);
-
-    var posX = Math.random() * (window.innerWidth - width/2);
-    var posY = Math.random() * (window.innerHeight - height/2);
-
-    var newWin = window.open(imageURL,'windowName' + openWindows.length,'resizable=1,scrollbars=1,fullscreen=100,height=' + height.toString() + ',width=' + width.toString() + ',left=' + posX.toString() + ',top=' + posY.toString(), 'toolbar=0, menubar=0,status=1');
-
-    openWindows.push(newWin);
-//    let newMsg = new SpeechSynthesisUtterance("Hello my friend, did this actually work?");
-//    newWin.speechSynthesis.speak(newMsg);
-
-}
-
-function closeAllWindows(){   
-    for(var i = openWindows.length - 1; i >= 0; i--){
-        var oldWindow = openWindows.pop();
-        oldWindow.close();
-    }
-
-    console.log(openWindows.length);
-    self.close();
-}
 
 function changeVideoSpeed(speed){
     

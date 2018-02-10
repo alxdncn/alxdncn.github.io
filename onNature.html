@@ -8,6 +8,7 @@
 		<style>
 			html, body {
 				height: 100%;
+                width: 100%;
 				overflow: hidden;
 			}
 			#blocker {
@@ -20,8 +21,9 @@
 				background-color: rgba(0,0,0,1);
 
 			}
-            #instructions {
-
+            #title {
+                position: relative;
+                
 				width: 100%;
 				height: 100%;
 
@@ -41,25 +43,33 @@
 				-moz-box-align: center;
 				box-align: center;
 
-				color: rgb(0,0,0);
 				text-align: center;
-                font-size: 80px;
 			}
             
 		</style>
 	</head>
-	<body>
-        <div id="container"></div>
+	<body style="
+        margin-left: 0px;
+        margin-bottom: 0px;
+        margin-top: 0px;
+        margin-right: 0px;
+    ">
+                
+        <audio id="crowAudio" src="VideoPieceWebsite/audio/CrowRaw_compressed.mp3" loop=true></audio>
+        <audio id="treeAudio" src="VideoPieceWebsite/audio/TreeRawLong_compressed.mp3" loop=true></audio>
+        <audio id="dCrowAudio" src="VideoPieceWebsite/audio/CrowDistort_compressed.mp3" loop=true></audio>
+        <audio id="dTreeAudio" src="VideoPieceWebsite/audio/TreeDistortLong_compressed.mp3" loop=true></audio>
         
-        <audio id="crowAudio" src="VideoPieceWebsite/audio/CrowRaw.wav" loop=true></audio>
-        <audio id="treeAudio" src="VideoPieceWebsite/audio/TreeRaw.wav" loop=true></audio>
-        <audio id="dCrowAudio" src="VideoPieceWebsite/audio/CrowDistort.wav" loop=true></audio>
-        <audio id="dTreeAudio" src="VideoPieceWebsite/audio/TreeDistort.wav" loop=true></audio>
-        
-        <div id="blocker">
-
-			<div id="instructions">
-				<span>On Nature</span>
+        <div id="blocker">   
+			<div id="title">
+                <img id="O" src="VideoPieceWebsite/images/O.gif" style="width: 100px;">
+                <img id="N1" src="VideoPieceWebsite/images/N.gif" style="width: 100px;">
+                <img id="N2" src="VideoPieceWebsite/images/N1.gif" style="padding-left: 50px; width: 100px;">
+                <img id="A" src="VideoPieceWebsite/images/A.gif" style="width: 100px;">
+                <img id="T" src="VideoPieceWebsite/images/T.gif" style="width: 100px;">
+                <img id="U" src="VideoPieceWebsite/images/U.gif" style="width: 100px;">
+                <img id="R" src="VideoPieceWebsite/images/R.gif" style="width: 100px;">
+                <img id="E" src="VideoPieceWebsite/images/E.gif" style="width: 100px;">
 			</div>
 
 		</div>
@@ -71,15 +81,17 @@
 
             var crowAudio = document.getElementById("crowAudio");
             var dCrowAudio = document.getElementById("dCrowAudio");
+            
+            var block;
                         
             let loopAnimReq;
             
             let introTimer = 0;
-            let introTime = 10;
+            let introTime = 20;
             
             let lastNow;
             
-            let instructionsText = document.getElementById("instructions");
+//            let instructionsText = document.getElementById("titleBlock");
             
             function start(){
                 lastNow = Date.now();
@@ -104,41 +116,36 @@
                 
                 let t = introTimer/(introTime * 1000);
                 
-                if(t < 1){
-                    let cVal = Math.round(255 * t).toString();
-                    
-                    instructionsText.style.color = "rgb(" + cVal + "," + cVal + "," + cVal +")";
-                                        
+                if(t < 1){             
                     loopAnimReq = requestAnimationFrame(introLoop);
                     
-                    if(t < 0.97){
-                        treeAudio.volume = Math.pow(t, 3);
-                        crowAudio.volume = Math.pow(t, 3);
+                    if(t < 0.98){
+                        treeAudio.volume = Math.pow(t, 1.5);
+                        crowAudio.volume = Math.pow(t, 1.5);
                     } else{
                         treeAudio.volume = 0;
                         crowAudio.volume = 0;
-                        dTreeAudio.volume = Math.pow(t, 3);
-                        dCrowAudio.volume = Math.pow(t, 3);
+                        dTreeAudio.volume = Math.pow(t, 1.5);
+                        dCrowAudio.volume = Math.pow(t, 1.5);
                     }
                 } else{
                     startNextPhase = true;
-                    let block = document.getElementById("blocker");
+                    block = document.getElementById("blocker");
                     document.body.removeChild(block);
                     controls = new THREE.PointerLockControls( camera, scene );
                     
                     dTreeAudio.pause();
                     dCrowAudio.pause();
                     crowAudio.pause();
+                    startMessageLoop();
                 }
                 
             }
-            console.log(instructionsText.style.color);
             
             start();
             introLoop();
         </script>
         
-        <video muted id="marioSkyVideo" src="VideoPieceWebsite/videos/SkyVid2.mp4" autoplay=true loop=true style="display:none" width="512" height="256"></video>
         <video muted id="skyVideo" src="VideoPieceWebsite/videos/FreemediabankSky.mp4" autoplay=true loop=true style="display:none" width="1024" height="512"></video>
         <video muted id="grassVideo" src="VideoPieceWebsite/videos/GrassVid2.mp4" autoplay=true loop=true style="display:none" width="1024" height="512"></video>
         <video muted id="treeVideo" src="VideoPieceWebsite/videos/OakVid.mp4" autoplay=true loop=true style="display:none"></video>
@@ -146,12 +153,48 @@
         <video muted id="foxVideo" src="VideoPieceWebsite/videos/FoxVid.mp4" autoplay=true loop=true style="display:none"></video>
         <video muted id="mouseVideo" src="VideoPieceWebsite/videos/MouseVid.mp4" autoplay=true loop=true style="display:none"></video>
         
+        <audio src="VideoPieceWebsite/audio/LongLoop_compressed.mp3" loop=true></audio>
+        
 		<script src="VideoPieceWebsite/js/three.min.js"></script>
         <script src="VideoPieceWebsite/js/PerlinNoiseSimplex.js"></script>
         <script
             src="https://code.jquery.com/jquery-3.2.1.min.js"
             integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
             crossorigin="anonymous">
+        </script>
+        
+        <script id="vertex_shader" type="x-shader/x-vertex">
+
+        varying vec2 vUv;
+
+        void main() {
+
+            vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+
+            vUv = uv;
+
+            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+        }
+
+        </script>
+
+        <script id="fragment_shader" type="x-shader/x-fragment">
+
+        uniform sampler2D texture;
+        uniform sampler2D texture2;
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        varying vec3 vViewPosition;
+
+        void main() {
+            vec4 tColor = texture2D( texture, vUv );
+            vec4 tColor2 = texture2D( texture2, vUv ) * 0.7;
+        
+            gl_FragColor = vec4((tColor.rgb + tColor2.rgb), 1.0);
+
+        }
+
         </script>
 
         <script src="VideoPieceWebsite/js/PointerLockControls.js"></script>
@@ -166,10 +209,9 @@
 
 		
 		<script>            
-            (function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='//rawgit.com/mrdoob/stats.js/master/build/stats.min.js';document.head.appendChild(script);})()
-
             window.onload = function () { console.log("Loaded") };
 
+            var tex = new THREE.TextureLoader().load( "VideoPieceWebsite/images/radial-gradient.png" );
             
             var clock = new THREE.Clock();
             var globalSpeed = 1;
@@ -179,11 +221,17 @@
             var timer = 0;
             var gameStateVar = 0;
             var crescendoDuration = 60;
-            
+                        
             var worldEdge = 1400;
             
             var playerObj;
             
+            var windowOpenWaitTime = 0;
+            var windowOpenWaitTimer = 0;
+            
+            var windowCloseWaitTime = 30;
+            var windowCloseWaitTimer = 0;
+                                    
             function changeSpeed(newSpeed){
                 globalSpeed = newSpeed;
                 
@@ -195,40 +243,52 @@
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
 				renderer.setSize( window.innerWidth, window.innerHeight );
-
 			}
             
             var allClickableObjects = [];
             
-            var audioEndpoint = 1000;
-            
             var glitchAudio = false;
             
-            function audioCurve(){
-                var x = timer/audioEndpoint;
-            }
+            var runGame = true;
         
             function update(){
+                if(launchedWindows){
+                    windowCloseWaitTimer += deltaTime;
+                    if(windowCloseWaitTimer > windowCloseWaitTime){
+                        windowCloseWaitTimer = 0;
+                        closeAllWindows();
+                        if(openWindows.length <= 0){
+                            launchedWindows = false;
+                            //This doesn't work right now, figure out a way to make it
+                            //self.close();
+                            document.body.appendChild(block);
+                            document.body.removeChild(renderer.domElement);
+                        }
+                    }
+                }
+                
+                if(runGame === false)
+                    return;
+                
                 deltaTime = clock.getDelta();
                 timer += deltaTime * globalSpeed;
                 
                 let t = timer/crescendoDuration;
                 
                 if(flock){
-//                    handleSine();
                     flock.run();
                 }
                 else if(t > 0.5){
                     makeFlock();
                 }
                 
-//                if(!glitchAudio && t > 0.9){
-//                    glitchAudio = true;
-//                    treeAudio.pause();
-//                    crowAudio.pause();
-//                    dTreeAudio.play();
-//                    dCrowAudio.play();
-//                }
+                if(!glitchAudio && t > 0.98){
+                    glitchAudio = true;
+                    treeAudio.pause();
+                    crowAudio.pause();
+                    dTreeAudio.play();
+                    dCrowAudio.play();
+                }
 
                 if(controls){
                     controls.update(deltaTime);
@@ -242,14 +302,29 @@
                 runEnvironmentAudio(glitchAudio);
                 runAnimalAudio(glitchAudio);
                 
+                if(t > 1 && launchWindows === false && launchedWindows === false){
+                    launchWindows = true;
+                }
                 
-//                if(t > 1 && t < 1.1){
-//                    for(var i = 0; i < urls.length; i++){
-//                        launchImageWindow(urls[i]);
-//                    }
-//                } else if(t > 1.1){
-//                    closeAllWindows();
-//                }
+                if(launchWindows){
+                    windowOpenWaitTimer += deltaTime;
+                    if(windowOpenWaitTimer > windowOpenWaitTime){
+                        windowOpenWaitTimer = 0;
+                        launchImageWindow(urls[windowIndex]);
+                        windowIndex++;
+                        if(windowIndex >= urls.length){
+                            launchWindows = false;
+                            launchedWindows = true;
+                            runGame = false;
+
+                        }
+                    }
+                }
+                
+                if(controls.getRaycast() === false && t > 0.75){
+                    controls.setRaycast(true);
+                    createReticle();
+                }
                 
                 handleProgress(t);
             }
@@ -272,6 +347,15 @@
                 sepSine = Math.max(Math.sin(sepHolder), 0);
             }
             
+            function createReticle(){
+                var retGeo = new THREE.CircleGeometry(0.005, 8);
+                var retMat = new THREE.MeshBasicMaterial({color:0xdddddd, side: THREE.FrontSide});
+                var reticle = new THREE.Mesh(retGeo, retMat);
+                reticle.position.set(0, 0, -1);
+                scene.add(reticle);
+                camera.add(reticle);
+            }
+            
             function draw(){
                 renderer.render(scene, camera);
             }
@@ -285,19 +369,11 @@
 			}
             
             function init() {
-                var container = document.getElementById( 'container' );
                 camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 5000 );
                 scene = new THREE.Scene();
                 scene.add(camera);
                 renderer = new THREE.WebGLRenderer();
                 renderer.setSize(window.innerWidth, window.innerHeight);
-
-                var retGeo = new THREE.CircleGeometry(0.005, 8);
-                var retMat = new THREE.MeshBasicMaterial({color:0xdddddd, side: THREE.DoubleSide});
-                var reticle = new THREE.Mesh(retGeo, retMat);
-                reticle.position.set(0, 0, -1);
-                scene.add(reticle);
-                camera.add(reticle);
 
                 createSceneObjects();
                 createLandCreatures();

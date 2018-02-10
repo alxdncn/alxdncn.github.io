@@ -6,7 +6,7 @@ var generateTerrain = function(object, scene){
     let grassTex = new THREE.VideoTexture(grassVideo, THREE.UVMapping, THREE.RepeatWrapping, THREE.RepeatWrapping, THREE.NearestFilter, THREE.NearestFilter);
     grassTex.repeat.set( 1, 1 );
     
-    loader.load('VideoPieceWebsite/models/Circle.json', 
+    loader.load('models/Circle.json', 
         function(geometry){
         
             for(let i = 0; i < geometry.vertices.length; i++){

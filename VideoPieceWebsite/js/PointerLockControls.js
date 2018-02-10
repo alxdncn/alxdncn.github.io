@@ -3,7 +3,7 @@
  */
 
 var tween = false;
-THREE.PointerLockControls = function ( camera, scene, globeControls ) {
+THREE.PointerLockControls = function ( camera, scene ) {
 
 	var scope = this;
     
@@ -46,13 +46,6 @@ THREE.PointerLockControls = function ( camera, scene, globeControls ) {
     playerObj = yawObject;
     
     var centerObj;
-    if(globeControls){
-        centerObj = new THREE.Object3D();
-        centerObj.add(yawObject);
-        yawObject.position.y = -99.9;
-        scene.add(centerObj);
-    }
-        
 
 	var PI_2 = Math.PI / 2;
     
@@ -61,12 +54,24 @@ THREE.PointerLockControls = function ( camera, scene, globeControls ) {
     var moveLeft;
     var moveRight;
     
+    var lastPosition = new THREE.Vector3();
+    
     var vector = new THREE.Vector3();
     var worldUp = new THREE.Vector3(0,1,0);
     var speedVector = new THREE.Vector3();
     var speed = 50;
     
     var startDistFromObj;
+    
+    this.castRays = false;
+    
+    this.getRaycast = function(){
+        return scope.castRays;
+    }
+    
+    this.setRaycast = function(value){
+        scope.castRays = value;
+    }
 
 	var onMouseMove = function ( event ) {
         
@@ -80,12 +85,28 @@ THREE.PointerLockControls = function ( camera, scene, globeControls ) {
         
 		pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, pitchObject.rotation.x ) );
 
-        rayCast();
+        if(scope.castRays){
+            rayCast();
+        }
 	};
     
     var hoveredObject = null;
     var raycenter = new THREE.Vector2(0, 0), INTERSECTED;
-    var hoveredMat = new THREE.MeshBasicMaterial({color:0xff0000, side: THREE.DoubleSide});
+
+    var uniforms = {
+		texture: { type: "t", value: 0 },
+		texture2: { type: "t", value: tex }
+	};
+
+	// material
+	var hoveredMat = new THREE.ShaderMaterial({
+		uniforms        : uniforms,
+        side            : THREE.DoubleSide,
+		vertexShader    : document.getElementById( 'vertex_shader' ).textContent,
+		fragmentShader  : document.getElementById( 'fragment_shader' ).textContent
+	});
+    
+//    var hoveredMat = new THREE.MeshBasicMaterial({color:0x778877, side: THREE.DoubleSide});
     var storeMat;
     
     var rayCast = function(){
@@ -100,12 +121,18 @@ THREE.PointerLockControls = function ( camera, scene, globeControls ) {
                 if(hoveredObject === null){
                     hoveredObject = params[0].object;
                     storeMat = hoveredObject.material;
+                    hoveredMat.uniforms.texture.value = hoveredObject.material.map;
+                    hoveredMat.needsUpdate = true;
+//                    hoveredMat.map = hoveredObject.material.map;
                     hoveredObject.material = hoveredMat;
                 }
                 else if(hoveredObject !== params[0].object){
                     hoveredObject.material = storeMat;
                     hoveredObject = params[0].object;
                     storeMat = hoveredObject.material;
+                    hoveredMat.uniforms.texture.value = hoveredObject.material.map;
+                    hoveredMat.needsUpdate = true;
+//                    hoveredMat.map = hoveredObject.material.map;
                     hoveredObject.material = hoveredMat;
                 }
             } else{
@@ -113,6 +140,7 @@ THREE.PointerLockControls = function ( camera, scene, globeControls ) {
                     hoveredObject.material = storeMat;
                     storeMat = null;
                     hoveredObject = null;
+                    hoveredMat.map = null;
                 }
             }
             
@@ -226,6 +254,8 @@ THREE.PointerLockControls = function ( camera, scene, globeControls ) {
         if(!scope.canMove)
             return;
         
+        lastPosition.set(yawObject.position.x, yawObject.position.y, yawObject.position.z);
+        
         camera.getWorldDirection(vector);
                 
         var crossProd = new THREE.Vector3();
@@ -255,10 +285,16 @@ THREE.PointerLockControls = function ( camera, scene, globeControls ) {
         if(moveRight){
             yawObject.position.addVectors(yawObject.position, crossProd);
         }
-        
-//        console.log("x: " + yawObject.position.x + " z: " + yawObject.position.z);
-        
+                
         yawObject.position.y = globalNoise.noise(yawObject.position.x, yawObject.position.z) + scope.yHeight;
+        
+        let xyPos = new THREE.Vector2(yawObject.position.x, yawObject.position.z);
+                
+        if(xyPos.lengthSq() > (worldEdge * worldEdge)){
+            console.log("LAST POS: " + lastPosition + "CURRENT POS: " + yawObject.position);
+            yawObject.position.set(lastPosition.x, lastPosition.y, lastPosition.z);
+        }
+        
     }
     
     this.setCanMove = function(bool){
