@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        
+	</head>
+    <body>
+        <form>
+            <input id="loadButton" type="button" value="Open Game" />
+        </form>
+        
+        <script>
+            var inputButton = document.getElementById("loadButton");
+            
+            inputButton.onclick = function(){
+                var windowName = 'loadGame'; 
+                var popUp = window.open('/onNature.html', windowName);
+                if (popUp == null || typeof(popUp)=='undefined') {  
+                    alert('Please disable your pop-up blocker and click the "Open Game" link again.'); 
+                } 
+                else {  
+                    console.log("WORKED");
+                    popUp.focus();
+                }
+            }
+        </script>
+    </body>
+</html>
