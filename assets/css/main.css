@@ -1714,7 +1714,7 @@
 	section.special, article.special {
 		text-align: center;
 	}
-
+	
 	header p {
 		color: #b2b2b2;
 		position: relative;
@@ -2102,7 +2102,7 @@
 		ol li {
 			padding-left: 0.25em;
 		}
-
+	
 	ul {
 		list-style: disc;
 		margin: 0 0 2em 0;
@@ -2151,6 +2151,7 @@
 			cursor: default;
 			list-style: none;
 			padding-left: 0;
+			margin-bottom: 6em;
 		}
 
 			ul.actions li {
@@ -2438,6 +2439,13 @@
 			color: #b2b2b2 !important;
 			cursor: default;
 		}
+
+		.button.sub-button {
+			float: left;
+			margin-left: 0;
+			clear: both; /* Ensures it is positioned relative to the container and not influenced by other floating elements */
+		}
+		
 
 /* Work Item */
 
