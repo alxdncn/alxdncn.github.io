@@ -1,23 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
-        
+        <meta charset="utf-8" />
+        <meta name="description" content="Launch On Nature, an experimental web game by Alex Duncan." />
+        <title>Launch On Nature — Alex Duncan</title>
+
 	</head>
     <body>
         <form>
             <input id="loadButton" type="button" value="Open Game" />
         </form>
-        
+
         <script>
             var inputButton = document.getElementById("loadButton");
-            
+
             inputButton.onclick = function(){
-                var windowName = 'loadGame'; 
+                var windowName = 'loadGame';
                 var popUp = window.open('/onNature.html', windowName);
-                if (popUp == null || typeof(popUp)=='undefined') {  
-                    alert('Please disable your pop-up blocker and click the "Open Game" link again.'); 
-                } 
-                else {  
+                if (popUp == null || typeof(popUp)=='undefined') {
+                    alert('Please disable your pop-up blocker and click the "Open Game" link again.');
+                }
+                else {
                     console.log("WORKED");
                     popUp.focus();
                 }

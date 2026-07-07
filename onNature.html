@@ -1,9 +1,10 @@
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
-		<title>On Nature</title>
+		<title>On Nature — Alex Duncan</title>
 		<meta charset="utf-8">
+		<meta name="description" content="On Nature, an experimental web game exploring different representations of animals and environments." />
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<style>
 			html, body {
@@ -23,7 +24,7 @@
 			}
             #title {
                 position: relative;
-                
+
 				width: 100%;
 				height: 100%;
 
@@ -45,7 +46,7 @@
 
 				text-align: center;
 			}
-            
+
 		</style>
 	</head>
 	<body style="
@@ -54,26 +55,26 @@
         margin-top: 0px;
         margin-right: 0px;
     ">
-                
+
         <audio id="crowAudio" src="VideoPieceWebsite/audio/CrowRaw_compressed.mp3" loop=true></audio>
         <audio id="treeAudio" src="VideoPieceWebsite/audio/TreeRawLong_compressed.mp3" loop=true></audio>
         <audio id="dCrowAudio" src="VideoPieceWebsite/audio/CrowDistort_compressed.mp3" loop=true></audio>
         <audio id="dTreeAudio" src="VideoPieceWebsite/audio/TreeDistortLong_compressed.mp3" loop=true></audio>
-        
-        <div id="blocker">   
-			<div id="title">
-                <img id="O" src="VideoPieceWebsite/images/O.gif" style="width: 100px;">
-                <img id="N1" src="VideoPieceWebsite/images/N.gif" style="width: 100px;">
-                <img id="N2" src="VideoPieceWebsite/images/N1.gif" style="padding-left: 50px; width: 100px;">
-                <img id="A" src="VideoPieceWebsite/images/A.gif" style="width: 100px;">
-                <img id="T" src="VideoPieceWebsite/images/T.gif" style="width: 100px;">
-                <img id="U" src="VideoPieceWebsite/images/U.gif" style="width: 100px;">
-                <img id="R" src="VideoPieceWebsite/images/R.gif" style="width: 100px;">
-                <img id="E" src="VideoPieceWebsite/images/E.gif" style="width: 100px;">
+
+        <div id="blocker">
+			<div id="title" role="img" aria-label="On Nature">
+                <img id="O" src="VideoPieceWebsite/images/O.gif" alt="" style="width: 100px;">
+                <img id="N1" src="VideoPieceWebsite/images/N.gif" alt="" style="width: 100px;">
+                <img id="N2" src="VideoPieceWebsite/images/N1.gif" alt="" style="padding-left: 50px; width: 100px;">
+                <img id="A" src="VideoPieceWebsite/images/A.gif" alt="" style="width: 100px;">
+                <img id="T" src="VideoPieceWebsite/images/T.gif" alt="" style="width: 100px;">
+                <img id="U" src="VideoPieceWebsite/images/U.gif" alt="" style="width: 100px;">
+                <img id="R" src="VideoPieceWebsite/images/R.gif" alt="" style="width: 100px;">
+                <img id="E" src="VideoPieceWebsite/images/E.gif" alt="" style="width: 100px;">
 			</div>
 
 		</div>
-        
+
         <script>
             var startNextPhase = false;
             var treeAudio = document.getElementById("treeAudio");
@@ -81,21 +82,21 @@
 
             var crowAudio = document.getElementById("crowAudio");
             var dCrowAudio = document.getElementById("dCrowAudio");
-            
+
             var block;
-                        
+
             let loopAnimReq;
-            
+
             let introTimer = 0;
             let introTime = 20;
-            
+
             let lastNow;
-            
+
 //            let instructionsText = document.getElementById("titleBlock");
-            
+
             function start(){
                 lastNow = Date.now();
-                
+
                 treeAudio.volume = 0;
                 crowAudio.volume = 0;
                 dTreeAudio.volume = 0;
@@ -106,19 +107,19 @@
                 dTreeAudio.play();
                 dCrowAudio.play();
             }
-            
+
             function introLoop(){
                 let now = Date.now();
                 let dt = now - lastNow;
                 lastNow = now;
-                
+
                 introTimer += dt;
-                
+
                 let t = introTimer/(introTime * 1000);
-                
-                if(t < 1){             
+
+                if(t < 1){
                     loopAnimReq = requestAnimationFrame(introLoop);
-                    
+
                     if(t < 0.98){
                         treeAudio.volume = Math.pow(t, 1.5);
                         crowAudio.volume = Math.pow(t, 1.5);
@@ -133,28 +134,28 @@
                     block = document.getElementById("blocker");
                     document.body.removeChild(block);
                     controls = new THREE.PointerLockControls( camera, scene );
-                    
+
                     dTreeAudio.pause();
                     dCrowAudio.pause();
                     crowAudio.pause();
                     startMessageLoop();
                 }
-                
+
             }
-            
+
             start();
             introLoop();
         </script>
-        
+
         <video muted id="skyVideo" src="VideoPieceWebsite/videos/FreemediabankSky.mp4" autoplay=true loop=true style="display:none" width="1024" height="512"></video>
         <video muted id="grassVideo" src="VideoPieceWebsite/videos/GrassVid2.mp4" autoplay=true loop=true style="display:none" width="1024" height="512"></video>
         <video muted id="treeVideo" src="VideoPieceWebsite/videos/OakVid.mp4" autoplay=true loop=true style="display:none"></video>
         <video muted id="ravenVideo" src="VideoPieceWebsite/videos/RavenVid.mp4" autoplay=true loop=true style="display:none"></video>
         <video muted id="foxVideo" src="VideoPieceWebsite/videos/FoxVid.mp4" autoplay=true loop=true style="display:none"></video>
         <video muted id="mouseVideo" src="VideoPieceWebsite/videos/MouseVid.mp4" autoplay=true loop=true style="display:none"></video>
-        
+
         <audio src="VideoPieceWebsite/audio/LongLoop_compressed.mp3" loop=true></audio>
-        
+
 		<script src="VideoPieceWebsite/js/three.min.js"></script>
         <script src="VideoPieceWebsite/js/PerlinNoiseSimplex.js"></script>
         <script
@@ -162,7 +163,7 @@
             integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
             crossorigin="anonymous">
         </script>
-        
+
         <script id="vertex_shader" type="x-shader/x-vertex">
 
         varying vec2 vUv;
@@ -190,7 +191,7 @@
         void main() {
             vec4 tColor = texture2D( texture, vUv );
             vec4 tColor2 = texture2D( texture2, vUv ) * 0.7;
-        
+
             gl_FragColor = vec4((tColor.rgb + tColor2.rgb), 1.0);
 
         }
@@ -207,12 +208,12 @@
         <script src="VideoPieceWebsite/js/fox.js"></script>
         <script src="VideoPieceWebsite/js/AnimalManager.js"></script>
 
-		
-		<script>            
+
+		<script>
             window.onload = function () { console.log("Loaded") };
 
             var tex = new THREE.TextureLoader().load( "VideoPieceWebsite/images/radial-gradient.png" );
-            
+
             var clock = new THREE.Clock();
             var globalSpeed = 1;
 
@@ -221,36 +222,36 @@
             var timer = 0;
             var gameStateVar = 0;
             var crescendoDuration = 60;
-                        
+
             var worldEdge = 1400;
-            
+
             var playerObj;
-            
+
             var windowOpenWaitTime = 0;
             var windowOpenWaitTimer = 0;
-            
+
             var windowCloseWaitTime = 30;
             var windowCloseWaitTimer = 0;
-                                    
+
             function changeSpeed(newSpeed){
                 globalSpeed = newSpeed;
-                
+
                 changeVideoSpeed(globalSpeed);
             }
 
 			function onWindowResize() {
-                
+
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
 				renderer.setSize( window.innerWidth, window.innerHeight );
 			}
-            
+
             var allClickableObjects = [];
-            
+
             var glitchAudio = false;
-            
+
             var runGame = true;
-        
+
             function update(){
                 if(launchedWindows){
                     windowCloseWaitTimer += deltaTime;
@@ -266,22 +267,22 @@
                         }
                     }
                 }
-                
+
                 if(runGame === false)
                     return;
-                
+
                 deltaTime = clock.getDelta();
                 timer += deltaTime * globalSpeed;
-                
+
                 let t = timer/crescendoDuration;
-                
+
                 if(flock){
                     flock.run();
                 }
                 else if(t > 0.5){
                     makeFlock();
                 }
-                
+
                 if(!glitchAudio && t > 0.98){
                     glitchAudio = true;
                     treeAudio.pause();
@@ -296,16 +297,16 @@
 //                        controls.setYHeight(controls.getYHeight() + 100 * deltaTime);
 //                    }
                 }
-                
+
                 runMouse();
                 runFox();
                 runEnvironmentAudio(glitchAudio);
                 runAnimalAudio(glitchAudio);
-                
+
                 if(t > 1 && launchWindows === false && launchedWindows === false){
                     launchWindows = true;
                 }
-                
+
                 if(launchWindows){
                     windowOpenWaitTimer += deltaTime;
                     if(windowOpenWaitTimer > windowOpenWaitTime){
@@ -320,33 +321,33 @@
                         }
                     }
                 }
-                
+
                 if(controls.getRaycast() === false && t > 0.75){
                     controls.setRaycast(true);
                     createReticle();
                 }
-                
+
                 handleProgress(t);
             }
-            
+
             function handleProgress(timeFraction){
                 let fraction = Math.min(timeFraction, 1);
                 gameStateVar = Math.pow(fraction, 2) * ((1.5 + 1) * fraction - 1.5);
                 gameStateVar = Math.max(gameStateVar, 0);
             }
-            
-            document.addEventListener('keydown', function(event){ 
-                if(event.keyCode === 220){ 
+
+            document.addEventListener('keydown', function(event){
+                if(event.keyCode === 220){
                     controls.setCanMove(true);
-                } 
+                }
             });
-            
+
             function handleSine(){
                 sepHolder += sepSineInc * deltaTime * globalSpeed;
-                
+
                 sepSine = Math.max(Math.sin(sepHolder), 0);
             }
-            
+
             function createReticle(){
                 var retGeo = new THREE.CircleGeometry(0.005, 8);
                 var retMat = new THREE.MeshBasicMaterial({color:0xdddddd, side: THREE.FrontSide});
@@ -355,7 +356,7 @@
                 scene.add(reticle);
                 camera.add(reticle);
             }
-            
+
             function draw(){
                 renderer.render(scene, camera);
             }
@@ -367,7 +368,7 @@
                     draw();
                 }
 			}
-            
+
             function init() {
                 camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 5000 );
                 scene = new THREE.Scene();
@@ -380,11 +381,11 @@
 
                 document.body.appendChild(renderer.domElement);
             }
-            
+
             window.addEventListener('keydown', function(event){if(event.keycode===81) closeAllWindows();});
-            
+
             window.addEventListener( 'resize', onWindowResize, false );
-            
+
             init();
 
 			RunApp();
