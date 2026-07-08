@@ -13,20 +13,21 @@
 	var $window = $(window);
 	var $body = $('body');
 	var $header = $('#header');
+	var lightboxSelector = '.work-item a.image[href^="images/"]';
 
 	$body.addClass('is-loading');
 
 	$window.on('load', function () {
 		$body.removeClass('is-loading');
 
-		if ($('#two .work-item a.image').length) {
+		if ($('#two').find(lightboxSelector).length) {
 			$('#two').poptrox({
 				caption: function ($link) { return $link.next('h3').text(); },
 				overlayColor: '#2c2c2c',
 				overlayOpacity: 0.85,
 				popupCloserText: '',
 				popupLoaderText: '',
-				selector: '.work-item a.image',
+				selector: lightboxSelector,
 				usePopupCaption: true,
 				usePopupDefaultStyling: false,
 				usePopupEasyClose: false,
