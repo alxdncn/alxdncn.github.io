@@ -14,6 +14,8 @@ export default defineConfig({
         savagebeasts: resolve(__dirname, 'savagebeasts.html'),
         timeismoney: resolve(__dirname, 'timeismoney.html'),
         whenlionsspeak: resolve(__dirname, 'whenlionsspeak.html'),
+        beyondFairUse: resolve(__dirname, 'beyond-fair-use/index.html'),
+        beyondFairUseHtml: resolve(__dirname, 'beyond-fair-use.html'),
         writing: resolve(__dirname, 'writing.html'),
         cv: resolve(__dirname, 'CV.html'),
       },
