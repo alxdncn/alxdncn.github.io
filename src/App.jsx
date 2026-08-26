@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { BonsaiScene } from './components/BonsaiScene'
 import beyondFairUseText from './beyondFairUse.md?raw'
+import gamesBitingBackText from './gamesBitingBack.md?raw'
 
 const projects = [
   { title: 'Surely, AI Can', image: '/images/large/surelyaican.jpg', href: 'https://surelyaican.com/', text: 'A parody AI benchmarking site that shows the surprising ways frontier models fail.' },
@@ -14,6 +15,7 @@ const projects = [
 ]
 
 const professional = [
+  { title: 'Looking Glass Unity Plugin', image: '/images/looking-glass-unity/unity-workflow.jpg', href: '/looking-glass-unity.html', text: 'A creator tool that translated light-field rendering into familiar Unity concepts: a volumetric camera, quilt capture, depth-aware focus, and 3D interaction.' },
   { title: 'Liteforms', image: '/images/thumbs/liteforms-small.gif', href: 'https://lookingglassfactory.com/liteforms', text: "A desktop application for talking to and creating holographic characters. A design exploration of embodied AI for Looking Glass displays, where I’m the product lead." },
   { title: 'Holographic Elemental', image: '/images/large/elemental-pixar-large.gif', href: 'https://blog.lookingglassfactory.com/thattimewewenttopixar/', text: 'For Pixar’s Elemental, I supported the team with visual design for bringing Ember and Wade to a Looking Glass display.' },
   { title: 'Bulgari Holographic Experience', image: '/images/thumbs/OctoFinissimo-small.png', href: 'https://www.linkedin.com/posts/ennio-piccirillo_digital-storytelling-experience-activity-7028844964054806528-0Dqy/', text: 'A pop-up holographic experience in Rome showcasing the Octo Finissimo Ultra. I worked on the interaction and visual design.' },
@@ -24,6 +26,7 @@ const professional = [
 
 const writing = [
   { title: 'Beyond Fair Use: Sustaining Journalism in the Age of AI', href: '/beyond-fair-use', text: 'A policy proposal for sustaining journalism as critical infrastructure for democracy and AI development.' },
+  { title: 'Games Biting Back: ANATOMY and Ecofeminism', href: '/games-biting-back.html', text: 'An ecofeminist reading of Kitty Horrorshow’s ANATOMY, presented at DiGRA 2018 and published in the official abstract proceedings.' },
   { title: 'Finding Wriggle Room: How I Made a Maggot Simulator', href: 'https://heyzine.com/flip-book/406aa8c48d.html#page/17', text: 'Critical and creative considerations behind my thesis, Every Creeping Thing. Published by A MAZE Magazine.' },
   { title: 'Savage Beasts: Civilization and Wilderness in Skyrim', href: 'https://www.firstpersonscholar.com/savage-beasts/', text: 'A look at the divisions between human civilization and hostile wilderness in Skyrim. Published by First Person Scholar.' },
   { title: 'When Lions Speak', href: '/whenlionsspeak.html', text: 'An analysis of how non-human animal avatars in games reflect and reinforce problematic power structures.' },
@@ -113,6 +116,7 @@ function MarkdownEssay({ title, subtitle, markdown }) {
         {subtitle && <p className="essay-subtitle"><em>{subtitle}</em></p>}
         <div className="prose">
           {blocks.map((block, index) => {
+            if (block === '---') return <hr className="essay-divider" key={index} />
             if (block.startsWith('### ')) return <h3 key={index}>{renderInline(block.slice(4))}</h3>
             if (block.startsWith('# ')) return <h2 key={index}>{renderInline(block.slice(2))}</h2>
             return <p key={index}>{renderInline(block)}</p>
@@ -133,6 +137,154 @@ function BeyondFairUse() {
   )
 }
 
+function QuiltDiagram() {
+  return (
+    <figure className="quilt-figure">
+      <img src="/images/looking-glass-unity/quilt-sample.avif" alt="A quilt containing 48 tiled views of the same stylized three-dimensional scene" loading="lazy" />
+      <figcaption><span>48 perspectives</span><span>one standard image or video</span></figcaption>
+    </figure>
+  )
+}
+
+function GamesBitingBack() {
+  return (
+    <MarkdownEssay
+      title="Games Biting Back: ANATOMY and Ecofeminism"
+      subtitle="Presented at DiGRA 2018: The Game is the Message, University of Turin, Turin, Italy, July 25–28, 2018"
+      markdown={gamesBitingBackText}
+    />
+  )
+}
+
+function CursorDiagram() {
+  return (
+    <figure className="cursor-figure">
+      <img src="/images/looking-glass-unity/3d-cursor.gif" alt="A red 3D cursor moving across white spheres positioned at different depths" loading="lazy" />
+      <figcaption>Double-click an object to make its depth the new center of attention.</figcaption>
+    </figure>
+  )
+}
+
+function LookingGlassUnity() {
+  return (
+    <Layout>
+      <article className="case-study looking-glass-case">
+        <header className="case-hero">
+          <div className="case-hero-copy">
+            <p className="kicker">Professional work · Looking Glass Factory</p>
+            <h1><span>Looking Glass</span><span>Unity Plugin</span></h1>
+            <p className="case-deck">Designing a camera, media format, and interaction model for a display where depth is part of the interface.</p>
+          </div>
+          <figure className="case-hero-image">
+            <img src="/images/looking-glass-unity/unity-workflow.jpg" alt="A Unity scene running on a laptop beside a Looking Glass display" />
+            <figcaption>From a familiar Unity scene to a group-viewable light field.</figcaption>
+          </figure>
+          <dl className="case-meta">
+            <div><dt>Role</dt><dd>Product & interaction design</dd></div>
+            <div><dt>Focus</dt><dd>Creator experience</dd></div>
+            <div><dt>Team</dt><dd>Looking Glass Creator Tools</dd></div>
+          </dl>
+        </header>
+
+        <section className="case-section case-opening">
+          <p className="case-number">01 / Design premise</p>
+          <div className="case-section-copy">
+            <h2>A flat camera was the wrong metaphor.</h2>
+            <p className="case-lede">Unity assumes a camera projects one view onto a flat screen. A Looking Glass display presents dozens of views at once, and the position of content in depth changes what people can comfortably see. The creator therefore needs to frame a <em>volume</em>, not just an image.</p>
+            <p>The central customer-experience problem was translation: how could we expose the optical constraints of a light-field display without asking every Unity developer to become a display engineer? The plugin turned those constraints into spatial handles, familiar media files, and interaction patterns that creators could understand by looking and trying.</p>
+          </div>
+        </section>
+
+        <section className="case-section case-camera">
+          <p className="case-number">02 / Camera model</p>
+          <div className="case-section-copy">
+            <h2>The camera became a visible volume of space.</h2>
+            <p>The Hologram Camera uses a box gizmo to show the physical-looking region available inside the display. Its focal—or zero-parallax—plane marks the depth where all rendered views converge and where content appears sharpest. Instead of hiding the optics in numbers, the interface makes the display’s visual volume something a creator can place around a scene.</p>
+          </div>
+          <figure className="case-media case-media-wide">
+            <img src="/images/looking-glass-unity/camera-volume.gif" alt="Unity camera-volume gizmo with a model moving through the focal plane" loading="lazy" />
+            <figcaption>The green box communicates the capture volume; the central plane is the crispest point in the light field.</figcaption>
+          </figure>
+          <div className="camera-modes">
+            <div>
+              <p className="mode-index">A</p>
+              <h3>Volume mode</h3>
+              <p>The camera behaves like a box of space. Creators orbit around the volume’s center, while the <em>Size</em> control expands or contracts the visible range around the focal plane. This is the most direct model of the display as a physical window onto a bounded scene.</p>
+            </div>
+            <div>
+              <p className="mode-index">B</p>
+              <h3>Camera mode</h3>
+              <p>For people used to conventional cameras, the pivot moves to the central perspective and the focal plane becomes an adjustable parameter between the near and far clipping regions. This supports familiar framing and makes focus easy to animate.</p>
+            </div>
+          </div>
+          <p className="case-note">A separate “depthiness” control lets creators expand or compress perceived depth without unexpectedly changing field of view or focus—the kind of decoupling that makes an expert tool feel predictable.</p>
+        </section>
+
+        <section className="case-section case-quilts">
+          <p className="case-number">03 / Media system</p>
+          <div className="case-section-copy">
+            <h2>Quilts made a light field inspectable.</h2>
+            <p>A quilt tiles every rendered perspective into one frame: the leftmost view begins at the bottom-left and the views progress across the grid. That single compositing convention made the light field visible to creators, debuggable by the team, and portable between tools.</p>
+            <p>The important product decision was not to invent a proprietary container. Quilts live inside ordinary formats—PNG, JPG, GIF, MP4, MOV, or WebM—and a compact filename convention can record the grid and aspect ratio. A specialized 3D payload can therefore pass through familiar storage, playback, and web pipelines without custom processing at every step.</p>
+          </div>
+          <QuiltDiagram />
+          <div className="format-line" aria-label="Common quilt media formats"><span>.png</span><span>.jpg</span><span>.gif</span><span>.mp4</span><span>.webm</span></div>
+        </section>
+
+        <section className="case-section case-focus">
+          <p className="case-number">04 / Visual comfort</p>
+          <div className="case-section-copy">
+            <h2>Depth of field reframed an artifact as an aesthetic choice.</h2>
+            <p>Content becomes harder to resolve as it moves away from the zero-parallax plane. In a multi-view render, that can show up as crosstalk: neighboring views leak into one another and look like unintended ghosting.</p>
+            <p>We aligned depth of field with the holographic focal plane so the same region stays sharp across the view set. A strong, photographic falloff does not eliminate the optical limitation; it gives the limitation a visual explanation. What might read as a broken render instead feels like intentional focus.</p>
+          </div>
+          <figure className="case-media case-media-focus">
+            <img src="/images/looking-glass-unity/depth-of-field.gif" alt="Looking Glass display showing depth-of-field blur across several cubes" loading="lazy" />
+            <figcaption>Focus directs attention while softening the view-to-view crosstalk that grows with depth.</figcaption>
+          </figure>
+        </section>
+
+        <section className="case-section case-lighting">
+          <p className="case-number">05 / Content guidance</p>
+          <div className="case-section-copy">
+            <h2>Materials needed to move with the viewer.</h2>
+            <p>A light field is convincing when the image changes as someone shifts their head. In our demos, we leaned toward semi-gloss materials and controlled specular highlights so surfaces would catch light differently from each view. That changing reflection becomes a depth cue.</p>
+            <p>We paired those materials with dynamic lighting and restrained backgrounds. The goal was not realism for its own sake; it was to give creators a repeatable way to make shape and depth legible from many positions around the display.</p>
+          </div>
+          <figure className="case-media case-media-lighting">
+            <img src="/images/looking-glass-unity/dynamic-lighting.gif" alt="A reflective watch rotating as highlights move across its material" loading="lazy" />
+            <figcaption>Moving highlights help a surface describe its form from multiple viewpoints.</figcaption>
+          </figure>
+        </section>
+
+        <section className="case-section case-cursor">
+          <p className="case-number">06 / Spatial interaction</p>
+          <div className="case-section-copy">
+            <h2>A 3D scene needed a cursor with a Z-axis.</h2>
+            <p>The first version of the 3D Cursor was developed for Looking Glass Model Viewer, then adapted into the Unity plugin. It samples scene geometry so the pointer sits on the object beneath it, scales with the Hologram Camera, and can select something whether it appears in front of or behind the display plane.</p>
+            <p>Combined with orbit controls, double left-click made the selected point the new center of rotation and focus. That small gesture solved two related problems at once: it told the system what the user cared about and repositioned the multi-view renderer around a meaningful depth.</p>
+          </div>
+          <CursorDiagram />
+        </section>
+
+        <section className="case-section case-takeaway">
+          <p className="case-number">07 / Takeaway</p>
+          <div className="case-section-copy">
+            <h2>Designing the mental model was the product.</h2>
+            <p>The rendering technology was only useful if creators could predict it. The plugin’s enduring interaction ideas all reduce conceptual distance: a camera you can see as a volume, focus you can place in the scene, a light field stored in a familiar file, and a cursor that acknowledges depth.</p>
+            <div className="case-principles">
+              <p><span>01</span>Make hidden system behavior spatial and visible.</p>
+              <p><span>02</span>Preserve familiar workflows where the medium allows it.</p>
+              <p><span>03</span>Turn unavoidable constraints into intentional aesthetics.</p>
+            </div>
+            <p className="case-links">Read the official <a href="https://lfdocs.lookingglassfactory.com/software/index">Unity Plugin documentation</a>, the <a href="https://lfdocs.lookingglassfactory.com/software/index/prefabs/hologram-camera">Hologram Camera guide</a>, the <a href="https://lfdocs.lookingglassfactory.com/keyconcepts/quilts">quilt format overview</a>, and the <a href="https://lfdocs.lookingglassfactory.com/software/index/prefabs/3d-cursor">3D Cursor guide</a>.</p>
+          </div>
+        </section>
+      </article>
+    </Layout>
+  )
+}
+
 function Ect() {
   return <Layout><article className="essay project-detail"><p className="kicker">Game · MFA thesis</p><h1>Every Creeping Thing</h1><p className="lede">A game about embodying different animal species.</p><a className="button" href="https://alxdncn.itch.io/every-creeping-thing">Play the game <Arrow /></a><img src="/images/ect/ecttitle.png" alt="Every Creeping Thing title screen" /><div className="prose"><p>Challenging you to imagine the world from a perspective far removed from your own, it is a 3D game in three parts, each representing a unique creature’s viewpoint. Strange visual effects and unconventional controls ask the player simply to understand how to exist in a new, alien perspective.</p><img src="/images/thumbs/ect.png" alt="Underwater scene from Every Creeping Thing" /><p>Over the course of the game, the player moves from the perspective of a trout to a mayfly to a larva. It is a short, atmospheric experience that challenges the player to reconsider their relationship to the environment and the creatures they share it with.</p><img src="/images/ect/mayfly.png" alt="Mayfly perspective" /><p>Every Creeping Thing was my thesis project for my MFA at the NYU Game Center. After researching depictions of non-human animals as avatars, I tried to make a game that took a different approach.</p><img src="/images/ect/larva.png" alt="Larva perspective" /><p>Read more about its making in <a href="https://heyzine.com/flip-book/406aa8c48d.html#page/17">A MAZE magazine’s animals issue</a>.</p></div></article></Layout>
 }
@@ -150,9 +302,11 @@ export default function App() {
 
   if (path.endsWith('/portfolio.html')) return <Portfolio />
   if (path.endsWith('/about.html')) return <About />
+  if (path.endsWith('/looking-glass-unity.html')) return <LookingGlassUnity />
   if (path.endsWith('/ect.html')) return <Ect />
   if (path.endsWith('/beyond-fair-use') || path.endsWith('/beyond-fair-use/') || path.endsWith('/beyond-fair-use/index.html')) return <BeyondFairUse />
   if (path.endsWith('/beyond-fair-use.html')) return <BeyondFairUse />
+  if (path.endsWith('/games-biting-back.html')) return <GamesBitingBack />
   const essay = essays[path]
   if (essay) return <Essay essay={essay} />
   return <Home />
