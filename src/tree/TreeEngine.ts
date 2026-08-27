@@ -186,6 +186,22 @@ export class TreeEngine {
     }
   }
 
+  preGrow(generations: number) {
+    let generationsGrown = 0
+    const generationCount = Math.max(0, Math.floor(generations))
+
+    while (generationsGrown < generationCount && this.phase !== 'done') {
+      if (!this.growGeneration()) break
+      generationsGrown += 1
+    }
+
+    for (const node of this.nodes) {
+      node.progress = 1
+      node.age = Math.max(node.age, 1)
+    }
+    this.generationCooldown = 0
+  }
+
   update(deltaSeconds: number, speed: number) {
     let changed = false
     let hasGrowingSegment = false

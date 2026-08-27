@@ -12,9 +12,10 @@ class SiteNav extends HTMLElement {
 		this.innerHTML = `
 			<section aria-label="Site navigation">
 				<ul class="actions">
-					<li><a href="index.html" class="button">Main Page</a></li>
-					<li><a href="about.html" class="button">About Me</a></li>
-					<li><a href="portfolio.html" class="button">Portfolio</a></li>
+					<li><a href="/#professional-work" class="button">Professional Work</a></li>
+					<li><a href="/#game-art-projects" class="button">Game/Art Projects</a></li>
+					<li><a href="/#writing" class="button">Writing</a></li>
+					<li><a href="/about.html" class="button">About</a></li>
 				</ul>
 			</section>`;
 	}

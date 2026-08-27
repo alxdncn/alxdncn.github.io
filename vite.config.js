@@ -8,7 +8,6 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        portfolio: resolve(__dirname, 'portfolio.html'),
         about: resolve(__dirname, 'about.html'),
         lookingGlassUnity: resolve(__dirname, 'looking-glass-unity.html'),
         ect: resolve(__dirname, 'ect.html'),
@@ -18,7 +17,6 @@ export default defineConfig({
         beyondFairUse: resolve(__dirname, 'beyond-fair-use/index.html'),
         beyondFairUseHtml: resolve(__dirname, 'beyond-fair-use.html'),
         gamesBitingBack: resolve(__dirname, 'games-biting-back.html'),
-        writing: resolve(__dirname, 'writing.html'),
         cv: resolve(__dirname, 'CV.html'),
       },
     },

@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef } from 'react'
-import { useFrame, useThree } from '@react-three/fiber'
+import { Suspense, useEffect, useMemo, useRef } from 'react'
+import { useFrame } from '@react-three/fiber'
 import { useTexture } from '@react-three/drei'
 import {
   DoubleSide,
@@ -18,71 +18,94 @@ interface ProceduralTreeProps {
   seed: number
   branching: number
   rootBranching: number
+  initialGrowthSteps: number
   speed: number
   paused: boolean
   onStats: (stats: TreeStats) => void
 }
 
-export function ProceduralTree({ seed, branching, rootBranching, speed, paused, onStats }: ProceduralTreeProps) {
-  const tree = useMemo(
-    () => new Tree(legacyBonsaiSpecies, seed, branching, rootBranching),
-    [branching, rootBranching, seed],
-  )
-  const { species } = tree
-  const branchMesh = useRef<Mesh>(null)
-  const rootMesh = useRef<Mesh>(null)
-  const leafMesh = useRef<Mesh>(null)
-  const leafGroup = useRef<Group>(null)
-  const firstFrame = useRef(true)
-  const lastStatsUpdate = useRef(0)
-  const elapsedTime = useRef(0)
-  const { gl } = useThree()
-  const [bark, barkNormal, leaves] = useTexture([
-    species.appearance.barkTextureUrl,
-    species.appearance.barkNormalUrl,
-    species.appearance.foliageTextureUrl,
-  ])
+function BarkMaterial({ mapUrl, normalUrl, color }: { mapUrl: string; normalUrl: string; color: string }) {
+  const [bark, barkNormal] = useTexture([mapUrl, normalUrl])
 
   useEffect(() => {
     bark.colorSpace = SRGBColorSpace
     bark.wrapS = bark.wrapT = RepeatWrapping
-    bark.anisotropy = Math.min(8, gl.capabilities.getMaxAnisotropy())
     bark.needsUpdate = true
-
     barkNormal.wrapS = barkNormal.wrapT = RepeatWrapping
-    barkNormal.anisotropy = Math.min(8, gl.capabilities.getMaxAnisotropy())
     barkNormal.needsUpdate = true
+  }, [bark, barkNormal])
 
+  return (
+    <meshStandardMaterial
+      map={bark}
+      normalMap={barkNormal}
+      normalScale={new Vector2(0.62, 0.62)}
+      color={color}
+      roughness={0.92}
+      metalness={0}
+    />
+  )
+}
+
+function LeafMaterial({ textureUrl, color }: { textureUrl: string; color: string }) {
+  const leaves = useTexture(textureUrl)
+
+  useEffect(() => {
     leaves.colorSpace = SRGBColorSpace
-    leaves.anisotropy = Math.min(8, gl.capabilities.getMaxAnisotropy())
     leaves.needsUpdate = true
-  }, [bark, barkNormal, gl, leaves])
+  }, [leaves])
+
+  return (
+    <meshStandardMaterial
+      map={leaves}
+      alphaTest={0.42}
+      color={color}
+      roughness={0.86}
+      metalness={0}
+      side={DoubleSide}
+    />
+  )
+}
+
+export function ProceduralTree({ seed, branching, rootBranching, initialGrowthSteps, speed, paused, onStats }: ProceduralTreeProps) {
+  const tree = useMemo(
+    () => new Tree(legacyBonsaiSpecies, seed, branching, rootBranching, initialGrowthSteps),
+    [branching, initialGrowthSteps, rootBranching, seed],
+  )
+  const { species } = tree
+  const branchMesh = useRef<Mesh>(null)
+  const leafMesh = useRef<Mesh>(null)
+  const leafGroup = useRef<Group>(null)
+  const firstFrame = useRef(true)
+  const geometryDirty = useRef(true)
+  const lastGeometryUpdate = useRef(Number.NEGATIVE_INFINITY)
+  const lastStatsUpdate = useRef(0)
+  const elapsedTime = useRef(0)
 
   useEffect(() => () => {
     branchMesh.current?.geometry.dispose()
-    rootMesh.current?.geometry.dispose()
     leafMesh.current?.geometry.dispose()
   }, [])
 
   useFrame((_, delta) => {
     elapsedTime.current += delta
     const changed = !paused && tree.update(Math.min(delta, 0.05), speed)
+    if (changed) geometryDirty.current = true
     if (
-      (changed || firstFrame.current) &&
+      geometryDirty.current &&
+      (firstFrame.current || elapsedTime.current - lastGeometryUpdate.current >= 1 / 30) &&
       branchMesh.current &&
-      rootMesh.current &&
       leafMesh.current
     ) {
       const nextBranches = buildBranchGeometry(tree.canopy, species)
-      const nextRoots = buildBranchGeometry(tree.roots, species)
       const nextLeaves = buildLeafGeometry(tree.canopy, species)
       branchMesh.current.geometry.dispose()
-      rootMesh.current.geometry.dispose()
       leafMesh.current.geometry.dispose()
       branchMesh.current.geometry = nextBranches
-      rootMesh.current.geometry = nextRoots
       leafMesh.current.geometry = nextLeaves
       firstFrame.current = false
+      geometryDirty.current = false
+      lastGeometryUpdate.current = elapsedTime.current
     }
 
     if (leafGroup.current) {
@@ -100,37 +123,20 @@ export function ProceduralTree({ seed, branching, rootBranching, speed, paused, 
     <group>
       <mesh ref={branchMesh} castShadow receiveShadow>
         <bufferGeometry />
-        <meshStandardMaterial
-          map={bark}
-          normalMap={barkNormal}
-          normalScale={new Vector2(0.62, 0.62)}
-          color={species.appearance.barkColor}
-          roughness={0.92}
-          metalness={0}
-        />
-      </mesh>
-      <mesh ref={rootMesh} castShadow receiveShadow>
-        <bufferGeometry />
-        <meshStandardMaterial
-          map={bark}
-          normalMap={barkNormal}
-          normalScale={new Vector2(0.54, 0.54)}
-          color={species.appearance.rootColor}
-          roughness={0.96}
-          metalness={0}
-        />
+        <Suspense fallback={<meshStandardMaterial color="#4f3526" roughness={0.92} />}>
+          <BarkMaterial
+            mapUrl={species.appearance.barkTextureUrl}
+            normalUrl={species.appearance.barkNormalUrl}
+            color={species.appearance.barkColor}
+          />
+        </Suspense>
       </mesh>
       <group ref={leafGroup}>
         <mesh ref={leafMesh} castShadow>
           <bufferGeometry />
-          <meshStandardMaterial
-            map={leaves}
-            alphaTest={0.42}
-            color={species.appearance.foliageColor}
-            roughness={0.86}
-            metalness={0}
-            side={DoubleSide}
-          />
+          <Suspense fallback={<meshStandardMaterial color={species.appearance.foliageColor} roughness={0.86} side={DoubleSide} />}>
+            <LeafMaterial textureUrl={species.appearance.foliageTextureUrl} color={species.appearance.foliageColor} />
+          </Suspense>
         </mesh>
       </group>
     </group>

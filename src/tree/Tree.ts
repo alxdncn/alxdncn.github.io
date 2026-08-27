@@ -17,7 +17,7 @@ export class Tree {
   readonly resources: TreeResources
   health = 1
 
-  constructor(species: TreeSpecies, seed: number, branching: number, rootBranching: number) {
+  constructor(species: TreeSpecies, seed: number, branching: number, rootBranching: number, initialGrowthSteps = 0) {
     this.species = species
     const profile = species.growthAlgorithm
     const canopySpread = profile.canopy.resourceSpread ?? new Vector3(7.5, 7.5, 7.5)
@@ -28,10 +28,12 @@ export class Tree {
       resourceCount: branching,
       resourceSpread: species.shapeResourceField(canopySpread),
     })
+    this.canopy.preGrow(initialGrowthSteps)
     this.roots = new TreeEngine(seed ^ 0x5f3759df, {
       ...profile.roots,
       resourceCount: rootBranching,
       resourceSpread: species.shapeResourceField(rootSpread),
+      ...(rootBranching <= 0 ? { maxNodes: 1 } : {}),
     })
     this.resources = {
       water: species.physiology.waterRetention,

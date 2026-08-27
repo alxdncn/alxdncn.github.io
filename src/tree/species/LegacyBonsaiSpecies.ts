@@ -11,7 +11,7 @@ export class LegacyBonsaiSpecies extends TreeSpecies {
         form: 'broadleaf',
         habit: 'deciduous',
         type: 'lobed broadleaf',
-        leavesPerTip: 3,
+        leavesPerTip: 2,
         minimumBranchDepth: 7,
         width: 0.54,
         height: 0.84,
@@ -42,12 +42,13 @@ export class LegacyBonsaiSpecies extends TreeSpecies {
         rootDensityRatio: 0.68,
         rootGrowthRate: 0.92,
         canopy: {
+          meshSides: 6,
           resourceSpread: new Vector3(7.5, 7.5, 7.5),
           resources: [{ type: 'sun', ratio: 1, weight: 1 }],
           minDistance: 0.36,
           maxDistance: 2.35,
           branchLength: 0.34,
-          maxNodes: 3_400,
+          maxNodes: 1_600,
         },
         roots: {
           growthDirection: new Vector3(0, -1, 0),
