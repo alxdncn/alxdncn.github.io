@@ -147,14 +147,12 @@
             introLoop();
         </script>
 
-        <video muted id="skyVideo" src="VideoPieceWebsite/videos/FreemediabankSky.mp4" autoplay=true loop=true style="display:none" width="1024" height="512"></video>
-        <video muted id="grassVideo" src="VideoPieceWebsite/videos/GrassVid2.mp4" autoplay=true loop=true style="display:none" width="1024" height="512"></video>
-        <video muted id="treeVideo" src="VideoPieceWebsite/videos/OakVid.mp4" autoplay=true loop=true style="display:none"></video>
-        <video muted id="ravenVideo" src="VideoPieceWebsite/videos/RavenVid.mp4" autoplay=true loop=true style="display:none"></video>
-        <video muted id="foxVideo" src="VideoPieceWebsite/videos/FoxVid.mp4" autoplay=true loop=true style="display:none"></video>
-        <video muted id="mouseVideo" src="VideoPieceWebsite/videos/MouseVid.mp4" autoplay=true loop=true style="display:none"></video>
-
-        <audio src="VideoPieceWebsite/audio/LongLoop_compressed.mp3" loop=true></audio>
+        <video muted id="skyVideo" autoplay loop playsinline preload="auto" style="display:none" width="1024" height="512"><source src="VideoPieceWebsite/videos/FreemediabankSky.webm" type="video/webm"><source src="VideoPieceWebsite/videos/FreemediabankSky.mp4" type="video/mp4"></video>
+        <video muted id="grassVideo" autoplay loop playsinline preload="auto" style="display:none" width="1024" height="512"><source src="VideoPieceWebsite/videos/GrassVid2.webm" type="video/webm"><source src="VideoPieceWebsite/videos/GrassVid2.mp4" type="video/mp4"></video>
+        <video muted id="treeVideo" src="VideoPieceWebsite/videos/OakVid.mp4" autoplay loop playsinline preload="auto" style="display:none"></video>
+        <video muted id="ravenVideo" autoplay loop playsinline preload="auto" style="display:none"><source src="VideoPieceWebsite/videos/RavenVid.webm" type="video/webm"><source src="VideoPieceWebsite/videos/RavenVid.mp4" type="video/mp4"></video>
+        <video muted id="foxVideo" autoplay loop playsinline preload="auto" style="display:none"><source src="VideoPieceWebsite/videos/FoxVid.webm" type="video/webm"><source src="VideoPieceWebsite/videos/FoxVid.mp4" type="video/mp4"></video>
+        <video muted id="mouseVideo" autoplay loop playsinline preload="auto" style="display:none"><source src="VideoPieceWebsite/videos/MouseVid.webm" type="video/webm"><source src="VideoPieceWebsite/videos/MouseVid.mp4" type="video/mp4"></video>
 
 		<script src="VideoPieceWebsite/js/three.min.js"></script>
         <script src="VideoPieceWebsite/js/PerlinNoiseSimplex.js"></script>

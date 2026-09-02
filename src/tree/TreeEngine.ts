@@ -20,6 +20,9 @@ export interface TreeConfig {
   branchLength: number
   pullForce: number
   randomness: number
+  branchProbability: number
+  branchAngle: number
+  directionalBias: number
   maxNodes: number
 }
 
@@ -61,6 +64,9 @@ export const DEFAULT_TREE_CONFIG: TreeConfig = {
   branchLength: 0.36,
   pullForce: 0.22,
   randomness: 0.07,
+  branchProbability: 0.44,
+  branchAngle: 0.62,
+  directionalBias: 0.12,
   maxNodes: 3_200,
 }
 
@@ -156,8 +162,8 @@ export class TreeEngine {
       leafSeed: this.random(),
     })
 
-    // This keeps the original Unity distribution shape, but the samples now
-    // represent tunable resources such as sun, water, and soil nutrients.
+    // Resources set the growth budget and the point where the trunk begins to
+    // branch. Their positions deliberately do not steer branch directions.
     const resourceDistribution = normalizeResources(this.config.resources)
     for (let index = 0; index < this.config.resourceCount; index += 1) {
       const resourceRoll = this.random()
@@ -186,13 +192,22 @@ export class TreeEngine {
     }
   }
 
-  preGrow(generations: number) {
-    let generationsGrown = 0
-    const generationCount = Math.max(0, Math.floor(generations))
+  /**
+   * Build a fixed number of segments before the tree is first rendered.
+   *
+   * A recursive generation can contain exponentially more segments than the
+   * generation before it, so treating this value as a generation count can
+   * exhaust the entire growth budget during setup. Keeping it as a segment
+   * budget makes the initial state stable as branching parameters change.
+   */
+  preGrow(segments: number) {
+    let segmentsGrown = 0
+    const segmentBudget = Math.max(0, Math.floor(segments))
 
-    while (generationsGrown < generationCount && this.phase !== 'done') {
-      if (!this.growGeneration()) break
-      generationsGrown += 1
+    while (segmentsGrown < segmentBudget && this.phase !== 'done') {
+      const nodeCountBeforeGrowth = this.nodes.length
+      if (!this.growGeneration(segmentBudget - segmentsGrown)) break
+      segmentsGrown += this.nodes.length - nodeCountBeforeGrowth
     }
 
     for (const node of this.nodes) {
@@ -205,7 +220,7 @@ export class TreeEngine {
   update(deltaSeconds: number, speed: number) {
     let changed = false
     let hasGrowingSegment = false
-    const segmentSpeed = Math.max(0.1, speed) * 2.25
+    const segmentSpeed = Math.max(0.1, speed) * 0.805
 
     for (let index = 1; index < this.nodes.length; index += 1) {
       const node = this.nodes[index]
@@ -226,7 +241,7 @@ export class TreeEngine {
     return changed
   }
 
-  private growGeneration() {
+  private growGeneration(branchLimit = Number.POSITIVE_INFINITY) {
     if (this.nodes.length >= this.config.maxNodes) {
       this.phase = 'done'
       return false
@@ -246,70 +261,32 @@ export class TreeEngine {
     }
 
     const nodeCount = this.nodes.length
-    const sums = Array.from({ length: nodeCount }, () => new Vector3())
-    const influenceTargets = Array.from({ length: nodeCount }, () => [] as AttractionTarget[])
-    const influenceWeights = new Float32Array(nodeCount)
-    const reached = new Set<number>()
-    const minDistanceSquared = this.config.minDistance ** 2
-    const maxDistanceSquared = this.config.maxDistance ** 2
-
-    for (let targetIndex = 0; targetIndex < this.targets.length; targetIndex += 1) {
-      const target = this.targets[targetIndex]
-      let closestIndex = -1
-      let closestDistanceSquared = Number.POSITIVE_INFINITY
-
-      for (let branchIndex = 0; branchIndex < nodeCount; branchIndex += 1) {
-        const branch = this.nodes[branchIndex]
-        const distanceSquared = target.position.distanceToSquared(branch.position)
-        if (distanceSquared < minDistanceSquared) {
-          reached.add(targetIndex)
-          closestIndex = -1
-          break
-        }
-        if (distanceSquared <= maxDistanceSquared && distanceSquared < closestDistanceSquared) {
-          closestDistanceSquared = distanceSquared
-          closestIndex = branchIndex
-        }
-      }
-
-      if (closestIndex >= 0) {
-        sums[closestIndex].addScaledVector(
-          target.position.clone().sub(this.nodes[closestIndex].position).normalize(),
-          target.weight,
-        )
-        influenceTargets[closestIndex].push(target)
-        influenceWeights[closestIndex] += target.weight
-      }
-    }
-
-    for (let index = this.targets.length - 1; index >= 0; index -= 1) {
-      if (reached.has(index)) this.targets.splice(index, 1)
-    }
-
     let branchesAdded = 0
-    for (let index = 0; index < nodeCount && this.nodes.length < this.config.maxNodes; index += 1) {
-      if (influenceWeights[index] === 0) continue
-
+    for (
+      let index = 0;
+      index < nodeCount &&
+      this.nodes.length < this.config.maxNodes &&
+      branchesAdded < branchLimit;
+      index += 1
+    ) {
       const parent = this.nodes[index]
-      const attraction = sums[index].divideScalar(influenceWeights[index]).normalize()
-      const direction = parent.direction
-        .clone()
-        .addScaledVector(attraction, this.config.pullForce)
-        .add(
-          new Vector3(
-            (this.random() * 2 - 1) * this.config.randomness,
-            (this.random() * 2 - 1) * this.config.randomness,
-            (this.random() * 2 - 1) * this.config.randomness,
-          ),
-        )
-        .normalize()
+      if (parent.children.length > 0 || this.targets.length === 0) continue
 
-      if (parent.children.length > 0 && !this.canOffshootContinue(parent, direction, influenceTargets[index])) {
-        continue
-      }
-
-      this.spawn(index, direction)
+      this.spawn(index, this.fractalDirection(parent, false))
+      this.targets.pop()
       branchesAdded += 1
+
+      const branchChance = this.config.branchProbability * Math.min(1, parent.depth / 8)
+      if (
+        branchesAdded < branchLimit &&
+        this.targets.length > 0 &&
+        this.nodes.length < this.config.maxNodes &&
+        this.random() < branchChance
+      ) {
+        this.spawn(index, this.fractalDirection(parent, true))
+        this.targets.pop()
+        branchesAdded += 1
+      }
     }
 
     if (
@@ -322,19 +299,29 @@ export class TreeEngine {
     return branchesAdded > 0
   }
 
-  private canOffshootContinue(parent: BranchNode, direction: Vector3, targets: AttractionTarget[]) {
-    const nextPosition = parent.position.clone().addScaledVector(direction, this.config.branchLength)
-    const minDistanceSquared = this.config.minDistance ** 2
-    const maxDistanceSquared = this.config.maxDistance ** 2
-
-    return targets.some((target) => {
-      const nextDistanceSquared = target.position.distanceToSquared(nextPosition)
-      return (
-        nextDistanceSquared > minDistanceSquared &&
-        nextDistanceSquared <= maxDistanceSquared &&
-        nextDistanceSquared < target.position.distanceToSquared(parent.position)
+  private fractalDirection(parent: BranchNode, lateral: boolean) {
+    const growthAxis = this.config.growthDirection.clone().normalize()
+    const radialIndex = Math.floor(this.random() * parent.radials.length)
+    const radial = parent.radials[radialIndex]
+      .clone()
+      .multiplyScalar(this.random() < 0.5 ? -1 : 1)
+    const angle = lateral
+      ? this.config.branchAngle * (0.82 + this.random() * 0.36)
+      : this.config.branchAngle * (0.08 + this.random() * 0.12)
+    const direction = parent.direction
+      .clone()
+      .multiplyScalar(Math.cos(angle))
+      .addScaledVector(radial, Math.sin(angle))
+      .lerp(growthAxis, this.config.directionalBias * (lateral ? 0.7 : 1))
+      .add(
+        new Vector3(
+          (this.random() * 2 - 1) * this.config.randomness,
+          (this.random() * 2 - 1) * this.config.randomness,
+          (this.random() * 2 - 1) * this.config.randomness,
+        ),
       )
-    })
+
+    return direction.normalize()
   }
 
   private spawn(parentIndex: number, direction: Vector3) {

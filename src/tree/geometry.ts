@@ -8,11 +8,23 @@ const LEAF_GROWTH_START_AGE = 0.5
 const LEAF_GROWTH_FULL_AGE = 3.75
 
 function branchRadii(engine: TreeEngine, species: TreeSpecies) {
-  const weights = engine.nodes.map((node) => (node.children.length === 0 ? 1 : 0))
+  const weights = engine.nodes.map(() => 0)
+  const growth = engine.nodes.map((node) => easedProgress(node.progress))
   for (let index = engine.nodes.length - 1; index > 0; index -= 1) {
+    const node = engine.nodes[index]
+    const mostGrownChild = node.children.reduce(
+      (largest, childIndex) => Math.max(largest, growth[childIndex]),
+      0,
+    )
+    const terminalWeight = 1 - mostGrownChild
+    weights[index] = terminalWeight + node.children.reduce(
+      (total, childIndex) => total + weights[childIndex] * growth[childIndex],
+      0,
+    )
     const parent = engine.nodes[index].parent
-    if (parent !== null) weights[parent] += weights[index]
+    if (parent !== null) weights[parent] += weights[index] * growth[index]
   }
+  weights[0] = Math.max(1, weights[0])
   const radii = weights.map((weight, index) => {
     const ageScale = MathUtils.smoothstep(engine.nodes[index].age, 0, 1.6)
     const thickness = species.morphology.thickeningRate
