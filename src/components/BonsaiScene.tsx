@@ -1,6 +1,6 @@
-import { Suspense, useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useThree } from '@react-three/fiber'
-import { useTexture } from '@react-three/drei'
+import { OrbitControls, useTexture } from '@react-three/drei'
 import { ACESFilmicToneMapping, PerspectiveCamera, RepeatWrapping, SRGBColorSpace } from 'three'
 import { ProceduralTree } from './ProceduralTree'
 import type { TreeStats } from '../tree/TreeEngine'
@@ -42,8 +42,8 @@ function seededRandom(seed: number) {
   }
 }
 
-function makeFallbackTree() {
-  const random = seededRandom(7319)
+function makeFallbackTree(seed: number) {
+  const random = seededRandom(seed)
   const branches: FallbackBranch[] = []
   const leaves: FallbackLeaf[] = []
 
@@ -82,8 +82,6 @@ function makeFallbackTree() {
   return { branches, leaves }
 }
 
-const fallbackTree = makeFallbackTree()
-
 function canRenderWebGL() {
   if (typeof document === 'undefined') return false
   if (import.meta.env.DEV && new URLSearchParams(window.location.search).has('fallback-tree')) return false
@@ -96,8 +94,9 @@ function canRenderWebGL() {
   }
 }
 
-function FallbackTreeCanvas() {
+function FallbackTreeCanvas({ seed }: { seed: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const fallbackTree = useMemo(() => makeFallbackTree(seed), [seed])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -217,7 +216,7 @@ function FallbackTreeCanvas() {
       active = false
       resizeObserver.disconnect()
     }
-  }, [])
+  }, [fallbackTree])
 
   return <canvas ref={canvasRef} className="bonsai-fallback" aria-hidden="true" />
 }
@@ -271,6 +270,17 @@ function SceneContents(props: BonsaiSceneProps) {
   return (
     <>
       <FixedCamera />
+      <OrbitControls
+        target={[0, 5, 0]}
+        enablePan={false}
+        enableZoom={false}
+        enableDamping
+        dampingFactor={0.08}
+        minAzimuthAngle={-Infinity}
+        maxAzimuthAngle={Infinity}
+        minPolarAngle={Math.PI / 18}
+        maxPolarAngle={Math.PI / 2}
+      />
       <color attach="background" args={['#e8eadf']} />
       <hemisphereLight args={['#f7f3df', '#4b5548', 2.1]} />
       <directionalLight
@@ -297,7 +307,7 @@ function SceneContents(props: BonsaiSceneProps) {
 export function BonsaiScene(props: BonsaiSceneProps) {
   const [webGLAvailable] = useState(canRenderWebGL)
 
-  if (!webGLAvailable) return <FallbackTreeCanvas />
+  if (!webGLAvailable) return <FallbackTreeCanvas seed={props.seed} />
 
   return (
     <Canvas

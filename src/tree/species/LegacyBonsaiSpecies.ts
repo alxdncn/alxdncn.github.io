@@ -11,10 +11,10 @@ export class LegacyBonsaiSpecies extends TreeSpecies {
         form: 'broadleaf',
         habit: 'deciduous',
         type: 'lobed broadleaf',
-        leavesPerTip: 2,
+        leavesPerTip: 8,
         minimumBranchDepth: 9,
-        width: 0.48,
-        height: 0.8,
+        width: 0.245,
+        height: 0.4,
       },
       morphology: {
         heightGrowthRate: 1,

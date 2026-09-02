@@ -143,6 +143,10 @@
   cursor:default;
   pointer-events:none;
 }
+.bonsai-hero canvas:not(.bonsai-fallback){
+  pointer-events:auto;
+  touch-action:pan-y!important;
+}
 .bonsai-fallback{
   display:block;
   width:100%;

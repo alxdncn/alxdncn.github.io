@@ -95,16 +95,19 @@ function LeafMaterial({
   growthTime: GrowthUniform
 }) {
   const leaves = useTexture(textureUrl)
+  const { gl } = useThree()
 
   useEffect(() => {
     leaves.colorSpace = SRGBColorSpace
+    leaves.anisotropy = Math.min(8, gl.capabilities.getMaxAnisotropy())
     leaves.needsUpdate = true
-  }, [leaves])
+  }, [gl, leaves])
 
   return (
     <meshStandardMaterial
       map={leaves}
-      alphaTest={0.42}
+      alphaTest={0.38}
+      alphaToCoverage
       color={color}
       roughness={0.86}
       metalness={0}

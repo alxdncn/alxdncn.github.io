@@ -25,7 +25,15 @@ function branchRadii(engine: TreeEngine, species: TreeSpecies) {
       MAX_RADIUS * thickness,
       TIP_RADIUS * thickness * Math.pow(Math.max(1, weight), 0.47),
     )
-    return radius * taper * (node.children.length === 0 && index > 0 ? 0.24 : 1)
+    const terminalScale = node.children.length === 0 && index > 0 ? 0.24 : 1
+    const trunkScale =
+      node.branchLevel === 0
+        ? 1.1 * (1.12 + 0.28 * Math.pow(1 - along, 2.35))
+        : 1
+    return Math.min(
+      MAX_RADIUS * thickness * 1.5,
+      radius * taper * terminalScale * trunkScale,
+    )
   })
 
   const root = engine.nodes[0]
@@ -34,7 +42,7 @@ function branchRadii(engine: TreeEngine, species: TreeSpecies) {
     0,
   )
   radii[0] = Math.min(
-    MAX_RADIUS * thickness * 1.24,
+    MAX_RADIUS * thickness * 1.628,
     Math.max(radii[0], thickestChild * 1.32),
   )
   return radii
@@ -125,7 +133,7 @@ export function buildBranchGeometry(engine: TreeEngine, species: TreeSpecies) {
   return geometry
 }
 
-function appendLeafQuad(
+function appendBentLeafCard(
   positions: number[],
   uvs: number[],
   indices: number[],
@@ -137,29 +145,49 @@ function appendLeafQuad(
   heightAxis: Vector3,
   width: number,
   height: number,
+  bend: number,
   growthStart: number,
   growthEnd: number,
 ) {
   const halfWidth = widthAxis.clone().multiplyScalar(width)
   const halfHeight = heightAxis.clone().multiplyScalar(height)
+  const bendAxis = new Vector3().crossVectors(widthAxis, heightAxis).normalize()
+  const bottom = center.clone().sub(halfHeight)
+  const middle = center.clone().addScaledVector(bendAxis, bend)
+  const top = center.clone().add(halfHeight).addScaledVector(bendAxis, bend * 0.18)
   const baseVertex = positions.length / 3
-  const corners = [
-    center.clone().sub(halfWidth).sub(halfHeight),
-    center.clone().add(halfWidth).sub(halfHeight),
-    center.clone().add(halfWidth).add(halfHeight),
-    center.clone().sub(halfWidth).add(halfHeight),
+  const vertices = [
+    bottom.clone().sub(halfWidth),
+    bottom.clone().add(halfWidth),
+    middle.clone().sub(halfWidth),
+    middle.clone().add(halfWidth),
+    top.clone().sub(halfWidth),
+    top.clone().add(halfWidth),
   ]
-  for (const corner of corners) {
-    positions.push(corner.x, corner.y, corner.z)
+  for (const vertex of vertices) {
+    positions.push(vertex.x, vertex.y, vertex.z)
     growthOrigins.push(center.x, center.y, center.z)
     growthStarts.push(growthStart)
     growthEnds.push(growthEnd)
   }
-  uvs.push(0, 0, 1, 0, 1, 1, 0, 1)
-  indices.push(baseVertex, baseVertex + 1, baseVertex + 2, baseVertex, baseVertex + 2, baseVertex + 3)
+  uvs.push(0, 0, 1, 0, 0, 0.5, 1, 0.5, 0, 1, 1, 1)
+  indices.push(
+    baseVertex,
+    baseVertex + 1,
+    baseVertex + 2,
+    baseVertex + 2,
+    baseVertex + 1,
+    baseVertex + 3,
+    baseVertex + 2,
+    baseVertex + 3,
+    baseVertex + 4,
+    baseVertex + 4,
+    baseVertex + 3,
+    baseVertex + 5,
+  )
 }
 
-/** Crossed broadleaf cards, restricted to the outer sections of final twigs. */
+/** Small, bowed broadleaf sprays, restricted to the outer sections of final twigs. */
 export function buildLeafGeometry(engine: TreeEngine, species: TreeSpecies) {
   const positions: number[] = []
   const uvs: number[] = []
@@ -175,7 +203,7 @@ export function buildLeafGeometry(engine: TreeEngine, species: TreeSpecies) {
     const node = engine.nodes[nodeIndex]
     if (
       node.branchLevel !== terminalLevel ||
-      node.sectionIndex / Math.max(1, node.sectionCount) < 0.55 ||
+      node.sectionIndex / Math.max(1, node.sectionCount) < 0.3 ||
       node.depth < species.foliage.minimumBranchDepth ||
       node.parent === null
     ) continue
@@ -183,21 +211,33 @@ export function buildLeafGeometry(engine: TreeEngine, species: TreeSpecies) {
     const parent = engine.nodes[node.parent]
     for (let cluster = 0; cluster < species.foliage.leavesPerTip; cluster += 1) {
       const seed = (node.leafSeed * 977 + cluster * 0.381966) % 1
-      const along = MathUtils.clamp(0.5 + cluster * 0.24 + (seed - 0.5) * 0.12, 0.42, 0.88)
+      const slot = (cluster + 0.5 + (seed - 0.5) * 0.56) / species.foliage.leavesPerTip
+      const along = MathUtils.lerp(0.2, 0.96, MathUtils.clamp(slot, 0, 1))
       const center = parent.position.clone().lerp(node.position, along)
-      const radialIndex = Math.floor(seed * node.radials.length) % node.radials.length
-      const radial = node.radials[radialIndex].clone().normalize()
+      const radialAngle = seed * Math.PI * 2 + cluster * 2.399963
+      const radialBasis = node.radials[0].clone().normalize()
+      const tangentBasis = new Vector3().crossVectors(node.direction, radialBasis).normalize()
+      const radial = radialBasis
+        .multiplyScalar(Math.cos(radialAngle))
+        .addScaledVector(tangentBasis, Math.sin(radialAngle))
+        .normalize()
       const tangent = new Vector3().crossVectors(node.direction, radial).normalize()
-      center.addScaledVector(radial, 0.045 + cluster * 0.032)
+      center.addScaledVector(radial, 0.045 + (seed - 0.5) * 0.035)
 
       const heightAxis = node.direction
         .clone()
-        .multiplyScalar(0.72)
-        .addScaledVector(UP, 0.28)
-        .addScaledVector(tangent, (seed - 0.5) * 0.22)
+        .multiplyScalar(0.36)
+        .addScaledVector(radial, 0.48 + seed * 0.16)
+        .addScaledVector(UP, 0.12 + ((seed * 5.73) % 1) * 0.09)
         .normalize()
-      const width = species.foliage.width * (0.76 + seed * 0.34)
-      const height = species.foliage.height * (0.8 + ((seed * 7.13) % 1) * 0.28)
+      const widthAxis = radial
+        .clone()
+        .addScaledVector(heightAxis, -radial.dot(heightAxis))
+        .normalize()
+      const crossAxis = new Vector3().crossVectors(heightAxis, widthAxis).normalize()
+      const width = species.foliage.width * (0.72 + seed * 0.73)
+      const height = species.foliage.height * (0.76 + ((seed * 7.13) % 1) * 0.715)
+      const bend = width * (0.12 + ((seed * 11.31) % 1) * 0.12)
       const growthStart =
         MathUtils.lerp(parent.growthEnd, node.growthEnd, along) +
         engine.config.leafGrowthDelay * (0.55 + seed * 1.05) +
@@ -205,9 +245,9 @@ export function buildLeafGeometry(engine: TreeEngine, species: TreeSpecies) {
       const growthEnd =
         growthStart + engine.config.leafGrowthDuration * (0.76 + ((seed * 3.71) % 1) * 0.42)
 
-      // A perpendicular pair reads as one leafy cluster from the fixed hero
-      // camera while remaining a single merged, alpha-tested draw call.
-      appendLeafQuad(
+      // The article's perpendicular pair keeps foliage readable from every
+      // direction. Smaller, bowed cards add real normals and avoid a flat X.
+      appendBentLeafCard(
         positions,
         uvs,
         indices,
@@ -215,14 +255,15 @@ export function buildLeafGeometry(engine: TreeEngine, species: TreeSpecies) {
         growthStarts,
         growthEnds,
         center,
-        radial,
+        widthAxis,
         heightAxis,
         width,
         height,
+        bend,
         growthStart,
         growthEnd,
       )
-      appendLeafQuad(
+      appendBentLeafCard(
         positions,
         uvs,
         indices,
@@ -230,10 +271,11 @@ export function buildLeafGeometry(engine: TreeEngine, species: TreeSpecies) {
         growthStarts,
         growthEnds,
         center,
-        tangent,
+        crossAxis,
         heightAxis,
-        width,
-        height,
+        width * 0.94,
+        height * 0.96,
+        -bend * 0.82,
         growthStart + 0.04,
         growthEnd + 0.04,
       )
