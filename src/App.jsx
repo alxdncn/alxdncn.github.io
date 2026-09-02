@@ -101,11 +101,12 @@ function Layout({ children }) {
 }
 
 function HeroBonsai() {
+  const [seed] = useState(() => Math.floor(Math.random() * 0xffffffff) || 1)
 
   return (
     <div className="bonsai-hero" aria-hidden="true">
       <Suspense fallback={null}>
-        <BonsaiScene seed={7319} branching={540} rootBranching={0} initialGrowthSteps={20} speed={0.6} paused={false} onStats={() => {}} />
+        <BonsaiScene seed={seed} branching={540} rootBranching={0} initialGrowthSteps={20} speed={0.6} paused={false} onStats={() => {}} />
       </Suspense>
     </div>
   )

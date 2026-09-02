@@ -49,7 +49,7 @@ export interface TreeAppearance {
 }
 
 export interface GrowthAlgorithmProfile {
-  id: 'space-colonization'
+  id: 'recursive-deciduous'
   canopy: Partial<TreeConfig>
   roots: Partial<TreeConfig>
   rootDensityRatio: number

@@ -301,6 +301,7 @@ export function BonsaiScene(props: BonsaiSceneProps) {
 
   return (
     <Canvas
+      frameloop="demand"
       shadows="basic"
       dpr={[1, 1.5]}
       camera={{ position: [18, 14, 24], fov: 42, near: 0.1, far: 60 }}
