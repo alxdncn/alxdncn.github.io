@@ -152,7 +152,7 @@ function MarkdownEssay({ title, subtitle, markdown }) {
     .replace(/\r\n/g, '\n')
     .split(/\n{2,}/)
     .map((block) => block.trim())
-    .filter((block) => block && !block.startsWith('!'))
+    .filter(Boolean)
 
   return (
     <Layout>
@@ -162,6 +162,15 @@ function MarkdownEssay({ title, subtitle, markdown }) {
         {subtitle && <p className="essay-subtitle"><em>{subtitle}</em></p>}
         <div className="prose">
           {blocks.map((block, index) => {
+            const figure = block.match(/^!\[([^\]]*)\]\((\/images\/[^\s)]+)\)\n([\s\S]+)$/)
+            if (figure) return (
+              <figure className="essay-figure" key={index}>
+                <a href={figure[2]} aria-label={`View full-size graphic: ${figure[1]}`}>
+                  <img src={figure[2]} alt={figure[1]} loading="lazy" decoding="async" />
+                </a>
+                <figcaption>{renderInline(figure[3])}</figcaption>
+              </figure>
+            )
             if (block === '---') return <hr className="essay-divider" key={index} />
             if (block.startsWith('### ')) return <h3 key={index}>{renderInline(block.slice(4))}</h3>
             if (block.startsWith('# ')) return <h2 key={index}>{renderInline(block.slice(2))}</h2>

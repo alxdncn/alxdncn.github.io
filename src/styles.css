@@ -225,6 +225,24 @@
   border:0;
   border-top:1px solid var(--line);
 }
+.essay-figure{
+  margin:2.5em 0;
+}
+.essay-figure > a{
+  display:block;
+  border:0;
+}
+.essay-figure img{
+  width:100%;
+  height:auto;
+  background:#fff;
+}
+.essay-figure figcaption{
+  margin-top:12px;
+  color:var(--soft);
+  font-size:13px;
+  line-height:1.65;
+}
 
 .looking-glass-case{
   --holo:#7352a1;
